@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Anshika ✨ | Memories</title>
+    
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Poppins (for text) & Dancing Script (for fancy headings) -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Canvas Confetti for the surprise button -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        poppins: ['Poppins', 'sans-serif'],
+                        dancing: ['Dancing Script', 'cursive'],
+                    },
+                    colors: {
+                        primary: '#ff7eb3',
+                        secondary: '#ff758c',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Smooth Animations */
+        body {
+            background: linear-gradient(-45deg, #fbc2eb, #a6c1ee, #fdcbf1, #e6dee9);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Floating effect for background elements */
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+            will-change: transform;
+        }
+
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* Polaroid Photo Style */
+        .polaroid {
+            background: #fff;
+            padding: 12px 12px 50px 12px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            border-radius: 4px;
+            position: relative;
+            will-change: transform;
+        }
+
+        .polaroid img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 2px;
+        }
+
+        .polaroid::after {
+            content: attr(data-caption);
+            position: absolute;
+            bottom: 15px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .polaroid:nth-child(odd) { transform: rotate(-3deg); }
+        .polaroid:nth-child(even) { transform: rotate(3deg); }
+
+        .polaroid:hover {
+            transform: scale(1.08) rotate(0deg);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.25);
+            z-index: 10;
+        }
+
+        /* Scroll reveal animation class */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Glassmorphism card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+    </style>
+</head>
+<body class="font-poppins text-gray-800 antialiased selection:bg-pink-300 selection:text-white">
+
+    <!-- Audio Element (Will load music.mp3 from repo) -->
+    <audio id="bgMusic" loop>
+        <source src="music.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- WELCOME / LOCK SCREEN (To enable user interaction for audio playback) -->
+    <div id="welcomeScreen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/80 backdrop-blur-md transition-opacity duration-700">
+        <div class="text-center floating">
+            <i class="fa-solid fa-heart text-5xl text-primary mb-4 animate-pulse"></i>
+            <h1 class="font-dancing text-5xl md:text-7xl text-gray-800 mb-2">Hey Anshika! ✨</h1>
+            <p class="text-lg md:text-xl text-gray-600 mb-8 px-4">Ek choti si koshish, hamari pyari yaadon ke naam.</p>
+            
+            <button onclick="startJourney()" class="group relative px-8 py-4 bg-gradient-to-r from-primary to-secondary text-white rounded-full text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden">
+                <span class="relative z-10 flex items-center gap-2">
+                    <i class="fa-solid fa-music"></i> Yaadein Dekhein
+                </span>
+                <div class="absolute inset-0 h-full w-full bg-white/20 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
+            </button>
+            <p class="mt-4 text-sm text-gray-500 italic">Ensure your volume is up! 🔊</p>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT (Hidden initially) -->
+    <main id="mainContent" class="hidden opacity-0 transition-opacity duration-1000">
+        
+        <!-- Navbar with Music Control -->
+        <nav class="fixed top-0 w-full p-4 flex justify-end z-40">
+            <button onclick="toggleMusic()" id="musicBtn" class="bg-white/50 backdrop-blur-sm p-3 rounded-full shadow-lg hover:bg-white/80 transition-all text-primary">
+                <i class="fa-solid fa-volume-high text-xl"></i>
+            </button>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="min-h-[80vh] flex flex-col items-center justify-center text-center px-4 pt-20">
+            <div class="reveal">
+                <h1 class="font-dancing text-6xl md:text-8xl text-pink-600 drop-shadow-sm mb-4">
+                    Ansi Your Beautiful Memories
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-700 max-w-2xl mx-auto mb-8 font-light">
+                    "Some people enter your life as lessons. A rare few stay as forever.    -Anurag"
+                </p>
+                
+                <div class="inline-block bg-white/40 px-6 py-2 rounded-full backdrop-blur-sm border border-white/50 text-gray-700 shadow-sm">
+                    <i class="fa-solid fa-star text-yellow-400 mr-2"></i>
+                    Dedicated to my closest friend, Anshika
+                </div>
+            </div>
+            
+            <div class="mt-16 animate-bounce text-pink-400 text-3xl">
+                <i class="fa-solid fa-angle-down"></i>
+            </div>
+        </section>
+
+        <!-- Gallery Section -->
+        <section class="max-w-6xl mx-auto px-6 py-16">
+            <h2 class="font-dancing text-4xl md:text-5xl text-center mb-16 text-gray-800 reveal">
+                Moments Caught on Camera 📸
+            </h2>
+
+            <!-- Grid for Photos -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-14">
+                
+                <!-- Photo 1 -->
+                <div class="polaroid reveal" data-caption="Wo Pagalpanti 😂">
+                    <!-- Replace photo1.jpg with your image in repo -->
+                    <!-- onerror is just a fallback to show placeholder if photo1.jpg isn't uploaded yet -->
+                    <img src="photo1.jpg" alt="Memory 1" onerror="this.src='https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&q=80&w=600'">
+                </div>
+
+                <!-- Photo 2 -->
+                <div class="polaroid reveal" data-caption="Best Day Ever ✨">
+                    <img src="photo2.jpg" alt="Memory 2" onerror="this.src='https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&q=80&w=600'">
+                </div>
+
+                <!-- Photo 3 -->
+                <div class="polaroid reveal" data-caption="Smile Please! 😊">
+                    <img src="photo3.jpg" alt="Memory 3" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600'">
+                </div>
+
+                <!-- Photo 4 -->
+                <div class="polaroid reveal" data-caption="Chai & Charcha ☕">
+                    <img src="photo4.jpg" alt="Memory 4" onerror="this.src='https://images.unsplash.com/photo-1522228115018-d838bcce5c3a?auto=format&fit=crop&q=80&w=600'">
+                </div>
+
+                <!-- Photo 5 -->
+                <div class="polaroid reveal" data-caption="Unstoppable Us 🌟">
+                    <img src="photo5.jpg" alt="Memory 5" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=600'">
+                </div>
+
+                <!-- Photo 6 -->
+                <div class="polaroid reveal" data-caption="Always Support 🤝">
+                    <img src="photo6.jpg" alt="Memory 6" onerror="this.src='https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=600'">
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Interactive Surprise Section -->
+        <section class="py-20 px-4 reveal">
+            <div class="max-w-3xl mx-auto glass-card rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
+                <!-- Decorative elements -->
+                <div class="absolute -top-10 -right-10 text-pink-300 opacity-50 text-9xl"><i class="fa-solid fa-heart"></i></div>
+                
+                <h3 class="font-dancing text-4xl text-pink-600 mb-6 relative z-10">A Special Note...</h3>
+                <p class="text-lg text-gray-700 leading-relaxed mb-8 relative z-10">
+                    "Tere jaisi dost kismat walon ko milti hai. Jo baat bina bole samajh jaye, aur jo rone ke baad hamesha hasa de. Yeh ek choti si website banayi hai taaki hamari ye yaadein hamesha internet par safe rahein."
+                </p>
+                
+                <p class="text-right font-semibold text-pink-500 mb-8 relative z-10">- Tera Yaar, Anurag</p>
+
+                <!-- Interactive Button -->
+                <button id="surpriseBtn" class="relative z-10 bg-white text-pink-500 border-2 border-pink-500 px-8 py-3 rounded-full font-bold uppercase tracking-wider hover:bg-pink-500 hover:text-white transition-all duration-300 shadow-lg hover:shadow-pink-500/50 active:scale-95">
+                    Surprise Ke Liye Dabao! 🎁
+                </button>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center py-8 text-gray-600 bg-white/30 backdrop-blur-md mt-10">
+            <p class="text-lg">
+                Made with <i class="fa-solid fa-heart text-red-500 animate-pulse mx-1"></i> by 
+                <span class="font-bold text-gray-800">Anurag</span>
+            </p>
+            <p class="text-sm mt-2">© 2026 | For Anshika</p>
+        </footer>
+
+    </main>
+
+    <!-- JavaScript for Interactions -->
+    <script>
+        const bgMusic = document.getElementById('bgMusic');
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const mainContent = document.getElementById('mainContent');
+        const musicBtn = document.getElementById('musicBtn');
+        let isPlaying = false;
+
+        // Function to start the journey (hides welcome screen, shows main content, plays music)
+        function startJourney() {
+            // Fade out welcome screen
+            welcomeScreen.style.opacity = '0';
+            
+            setTimeout(() => {
+                welcomeScreen.style.display = 'none';
+                
+                // Show main content
+                mainContent.classList.remove('hidden');
+                setTimeout(() => {
+                    mainContent.style.opacity = '1';
+                }, 100);
+
+                // Play music
+                playMusic();
+            }, 700);
+        }
+
+        // Music Controls
+        function playMusic() {
+            bgMusic.play().then(() => {
+                isPlaying = true;
+                updateMusicIcon();
+            }).catch((e) => {
+                console.log("Audio autoplay prevented", e);
+            });
+        }
+
+        function toggleMusic() {
+            if (isPlaying) {
+                bgMusic.pause();
+                isPlaying = false;
+            } else {
+                bgMusic.play();
+                isPlaying = true;
+            }
+            updateMusicIcon();
+        }
+
+        function updateMusicIcon() {
+            if (isPlaying) {
+                musicBtn.innerHTML = '<i class="fa-solid fa-volume-high text-xl"></i>';
+                musicBtn.classList.remove('opacity-50');
+            } else {
+                musicBtn.innerHTML = '<i class="fa-solid fa-volume-xmark text-xl"></i>';
+                musicBtn.classList.add('opacity-50');
+            }
+        }
+
+        // Scroll Reveal Animation Logic
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                var elementVisible = 100; // when to trigger
+
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+        window.addEventListener("scroll", reveal);
+        // Trigger once on load
+        reveal();
+
+        // Confetti Surprise Button Logic
+        document.getElementById('surpriseBtn').addEventListener('click', function() {
+            // Change text temporarily
+            const originalText = this.innerHTML;
+            this.innerHTML = "Yayyy! 🎉";
+            setTimeout(() => {
+                this.innerHTML = originalText;
+            }, 2000);
+
+            // Fire Canvas Confetti
+            var duration = 3 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                var particleCount = 50 * (timeLeft / duration);
+                
+                // since particles fall down, start a bit higher than random
+                confetti(Object.assign({}, defaults, { 
+                    particleCount,
+                    origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+                }));
+                confetti(Object.assign({}, defaults, { 
+                    particleCount,
+                    origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+                }));
+            }, 250);
+        });
+    </script>
+</body>
+</html>
